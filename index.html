@@ -2,10 +2,60 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Tekyildiz App</title>
+  <title>Tekyildiz App - Testnet</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script>
+    // Pi SDK init (versiyon dokümana göre 2.0) :contentReference[oaicite:1]{index=1}
+    Pi.init({ version: "2.0" });
+
+    const PiSDK = window.Pi;
+
+    async function pay1Pi() {
+      // payments scope ile auth :contentReference[oaicite:2]{index=2}
+      const scopes = ["payments"];
+      const auth = await PiSDK.authenticate(scopes, (payment) => {
+        console.log("Incomplete payment found:", payment);
+      });
+
+      const paymentData = {
+        amount: 1,
+        memo: "Tekyildiz Test Payment",
+        metadata: { purpose: "step10" },
+      };
+
+      const paymentCallbacks = {
+        onReadyForServerApproval: async function (paymentId) {
+          // backend: approve
+          await fetch("https://SENIN-VERCEL-URLIN/api/approve", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentId }),
+          });
+        },
+        onReadyForServerCompletion: async function (paymentId, txid) {
+          // backend: complete
+          await fetch("https://SENIN-VERCEL-URLIN/api/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentId, txid }),
+          });
+          alert("Payment completed ✅");
+        },
+        onCancel: function (paymentId) {
+          console.log("Cancelled:", paymentId);
+        },
+        onError: function (error, payment) {
+          console.error("Payment error:", error, payment);
+          alert("Payment error: " + (error?.message || error));
+        },
+      };
+
+      await PiSDK.createPayment(paymentData, paymentCallbacks);
+    }
+  </script>
 </head>
 <body>
   <h1>Tekyildiz App – Testnet</h1>
-  <p>Pi Network Testnet transaction demo.</p>
+  <button onclick="pay1Pi()">Pay 1 Pi (Test)</button>
 </body>
 </html>
