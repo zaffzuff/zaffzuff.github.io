@@ -26,7 +26,7 @@
       const paymentCallbacks = {
         onReadyForServerApproval: async function (paymentId) {
           // backend: approve
-          await fetch("https://tekyildiz-backend-hht9s7w82-zafers-projects-cfe83e86.vercel.app/api/approve", {
+          await fetch("https://tekyildiz-backend-git-main-zafers-projects-cfe83e86.vercel.app/api/approve", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ paymentId }),
@@ -34,7 +34,7 @@
         },
         onReadyForServerCompletion: async function (paymentId, txid) {
           // backend: complete
-          await fetch("https://tekyildiz-backend-hht9s7w82-zafers-projects-cfe83e86.vercel.app/api/complete", {
+          await fetch("https://tekyildiz-backend-git-main-zafers-projects-cfe83e86.vercel.app/api/complete", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ paymentId, txid }),
@@ -59,6 +59,7 @@
   <button onclick="pay1Pi()">Pay 1 Pi (Test)</button>
 </body>
 </html>
+
 
 
 
