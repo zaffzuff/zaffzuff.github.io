@@ -5,15 +5,15 @@
   <title>Tekyildiz App - Testnet</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script>
-    // Pi SDK init (versiyon dokümana göre 2.0) :contentReference[oaicite:1]{index=1}
     Pi.init({ version: "2.0" });
-
     const PiSDK = window.Pi;
 
+    const BACKEND_BASE = "https://tekyildiz-testnet.vercel.app";
+
     async function pay1Pi() {
-      // payments scope ile auth :contentReference[oaicite:2]{index=2}
       const scopes = ["payments"];
-      const auth = await PiSDK.authenticate(scopes, (payment) => {
+
+      await PiSDK.authenticate(scopes, (payment) => {
         console.log("Incomplete payment found:", payment);
       });
 
@@ -25,25 +25,33 @@
 
       const paymentCallbacks = {
         onReadyForServerApproval: async function (paymentId) {
-          // backend: approve
-          await fetch("https://tekyildiz-backend-git-main-zafers-projects-cfe83e86.vercel.app/api/approve", {
+          const r = await fetch(`${BACKEND_BASE}/api/approve-payment`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ paymentId }),
           });
+
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) throw new Error(data?.error || "approve failed");
         },
+
         onReadyForServerCompletion: async function (paymentId, txid) {
-          // backend: complete
-          await fetch("https://tekyildiz-backend-git-main-zafers-projects-cfe83e86.vercel.app/api/complete", {
+          const r = await fetch(`${BACKEND_BASE}/api/complete-payment`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ paymentId, txid }),
           });
+
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) throw new Error(data?.error || "complete failed");
+
           alert("Payment completed ✅");
         },
+
         onCancel: function (paymentId) {
           console.log("Cancelled:", paymentId);
         },
+
         onError: function (error, payment) {
           console.error("Payment error:", error, payment);
           alert("Payment error: " + (error?.message || error));
@@ -59,8 +67,3 @@
   <button onclick="pay1Pi()">Pay 1 Pi (Test)</button>
 </body>
 </html>
-
-
-
-
-
